@@ -1,7 +1,7 @@
 import os
 import operator
 import numpy as np
-
+from PIL import Image
 
 def load_matrix(name):
     mat = np.load(os.path.join("./matrix", name+'.npy'))
@@ -65,7 +65,7 @@ def PCA(mat, k):
     np.save('./matrix/trainSample.npy', trainSample)
 
 
-def test(f):
+def load_pic(f):
     img = convert_pgm_P5(f)
     img = img.reshape(1, -1)
     meanMat = load_matrix('mean')
@@ -97,7 +97,7 @@ def batch_test(rootDir):
                         num = os.path.splitext(file)[0]
                         # print("Start testing pic{} of {}".format(num, dir))
                         f = open(os.path.join(rootDir, dir, file), 'rb')
-                        testSample = test(f)
+                        testSample = load_pic(f)
                         # name = dir+'_'+str(num)
                         # meta[name] = testSample
                         if cnt == 0:
@@ -128,10 +128,14 @@ def batch_test(rootDir):
     totalNum2 = scale * (scale - 1) - totalNum1
     far = farCnt/totalNum1
     frr = frrCnt/totalNum2
-    print(str(totalNum1) + '    '+ str(totalNum2))
+    # print(str(totalNum1) + '    '+ str(totalNum2))
     # print("FAR: {:.2%},  FRR: {:.2%}".format(far,frr))
     return far,frr
 
+def display_mean(mat):
+    mat = np.reshape(mat,(112,92))
+    map = Image.fromarray(mat)
+    map.show()
 
 if __name__ == '__main__':
     trainDir = './data/train'
@@ -153,4 +157,5 @@ if __name__ == '__main__':
     # print(best)
     print("The dimensionality of PCA is: %d"%k)
     print("bestFAR: {:.2%},  bestFRR: {:.2%}".format(minfar,minfrr))
-    
+    meanMat = load_matrix('mean')
+    display_mean(meanMat)
